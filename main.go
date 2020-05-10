@@ -32,17 +32,6 @@ type thing struct {
 	Path            string `gorm:"type:ltree;"`
 }
 
-const (
-	ownerA = "OrgA"
-	ownerB = "B"
-	ownerC = "C"
-	ownerD = "D"
-	ownerE = "E"
-	ownerF = "F"
-	ownerG = "G"
-	ownerH = "H"
-)
-
 func main() {
 
 	var env environment
