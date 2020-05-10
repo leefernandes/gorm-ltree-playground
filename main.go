@@ -70,9 +70,34 @@ func main() {
 	db.Exec("create extension btree_gin;")
 	db.Exec("create extension btree_gist;")
 
-	//db.Exec("DELETE FROM things where code = '';")
-
 	db.AutoMigrate(&thing{})
+
+	// check if we have things
+	var count int
+	if err := db.Table("things").Count(&count).Error; err != nil {
+		log.Fatal(err)
+	}
+
+	if 0 == count {
+		createThings(db)
+	}
+
+	var results []thing
+	// get A.AA, and all descendents
+	if err := db.Debug().Where("path <@ ?", "A.AA").Find(&results).Error; err != nil {
+		log.Fatal(err)
+	}
+	spew.Dump("A.AA results:", results)
+
+	// get A.AB.ABC, and all descendents
+	results = []thing{}
+	if err := db.Debug().Where("path <@ ?", "A.AB.ABC").Find(&results).Error; err != nil {
+		log.Fatal(err)
+	}
+	spew.Dump("A.AB.ABC results:", results)
+}
+
+func createThings(db *gorm.DB) {
 
 	things := []*thing{
 		// org A
@@ -145,28 +170,6 @@ func main() {
 			Owner: "AC",
 		},
 	}
-
-	// get A.AA, and all descendents
-	var results []thing
-	if err := db.Debug().Where("path <@ ?", "A.AA").Find(&results).Error; err != nil {
-		log.Fatal(err)
-	}
-	spew.Dump("results:", results)
-
-	// get A.AB.ABC, and all descendents
-	results = []thing{}
-	if err := db.Debug().Where("path <@ ?", "A.AB.ABC").Find(&results).Error; err != nil {
-		log.Fatal(err)
-	}
-	spew.Dump("results:", results)
-
-	//createThings(db, things)
-
-	log.Println("main", len(things))
-
-}
-
-func createThings(db *gorm.DB, things []*thing) {
 
 	for i := range things {
 		thing := things[i]
